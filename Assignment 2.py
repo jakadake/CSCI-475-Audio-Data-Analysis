@@ -28,35 +28,35 @@ def main():
     for k in intensity_ts:
         intensity_vals.append(intensity.get_value(k))
 
-    print("Intensity Time Sequence: " + k for k in intensity_ts)
-    print("Intensity Values: " + k for k in intensity_vals)
-
+    print(f"Intensity Time Sequence: {list(k for k in intensity_ts)}")
+    print(f"Intensity Values: {list(k for k in intensity_vals)}")
+    print(f"intensity TS entries: {len(intensity_ts)}\t")
     print("_________________________________________________")
     formants = snd.to_formant_burg(time_step=0.001, window_length=0.032169 )
-    #print(formants)
+    # print(formants)
     formants_ts = formants.ts()
     formant1_vals = []
     for k in formants_ts:
         formant1_vals.append(formants.get_value_at_time(1, k))
-    print("Formant Time Sequence: " + k for k in formants_ts)
-    print("Formant 1: " + k for k in formant1_vals)
+    print(f"Formant Time Sequence: {list(k for k in formants_ts)}")
+    print(f"Formant 1: {list(k for k in formant1_vals)}")
     print("_________________________________________________")
     pitch = snd.to_pitch(time_step=0.001)
-    #print(pitch)
+    # print(pitch)
     pitch_ts = pitch.ts()
     pitch_vals = []
     for k in pitch_ts:
         pitch_vals.append(pitch.get_value_at_time(k))
 
-    print("Pitch Time Sequence: " + k for k in pitch_ts)
-    print("Pitch Values: " + k for k in pitch_vals)
+    print(f"Pitch Time Sequence: {list(k for k in pitch_ts)}")
+    print(f"Pitch Values: {list( k for k in pitch_vals)}")
     print("_________________________________________________")
-    print("time differences b/w sequences")
+    # print("time differences b/w sequences")
 
-    for k in range(len(intensity_ts) - 1):
-        print("int/form: " + str(round(intensity_ts[k] - formants_ts[k], 4)) +
-        "\tint/pitch: " + str(round(intensity_ts[k] - pitch_ts[k], 4)) +
-        "\tForm/pitch: " + str(round(formants_ts[k] - pitch_ts[k], 4)))
+    #for k in range(len(intensity_ts) - 1):
+    #    print("int/form: " + str(round(intensity_ts[k] - formants_ts[k], 4)) +
+    #    "\tint/pitch: " + str(round(intensity_ts[k] - pitch_ts[k], 4)) +
+    #    "\tForm/pitch: " + str(round(formants_ts[k] - pitch_ts[k], 4)))
 
 
 if __name__ == '__main__':
