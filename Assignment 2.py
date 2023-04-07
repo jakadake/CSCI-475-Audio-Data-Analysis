@@ -32,7 +32,7 @@ def main():
     print(f"Intensity Values: {list(k for k in intensity_vals)}")
     print(f"intensity TS entries: {len(intensity_ts)}\t")
     print("_________________________________________________")
-    formants = snd.to_formant_burg(time_step=0.001, window_length=0.032169 )
+    formants = snd.to_formant_burg(time_step=0.001, window_length=0.032169)
     # print(formants)
     formants_ts = formants.ts()
     formant1_vals = []

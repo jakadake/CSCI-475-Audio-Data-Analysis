@@ -1,4 +1,5 @@
 import parselmouth as pm
+import os.path as path
 import numpy as np
 from FormantCleaning import draw_spectrogram
 
@@ -27,7 +28,6 @@ def get_formant_values(formant_number: int, formants: pm.Formant, intensity: pm.
         else:
             values.append((t, 0.0))
     return values
-
 
 def get_formants(pitch: pm.Pitch, formants: pm.Formant, intensity: pm.Intensity,
                  which_formants: tuple[int, ...] = (0, 1, 2, 3, 4), intensity_filter: float = 0) -> list[
@@ -78,23 +78,27 @@ def get_formant_differences(formants: list[list[tuple[float, float], ...]]) -> l
 
 def main():
     import matplotlib.pyplot as plt
-    sound: pm.Sound = pm.Sound('Thats One Small.wav')
-    pitch = sound.to_pitch()
-    formant = sound.to_formant_burg()
-    intensity = sound.to_intensity()
-    spectrogram = sound.to_spectrogram()
-    diffs = get_formant_differences(get_formants(pitch, formant, intensity, intensity_filter=50))
 
-    # for x in diffs:
-    #     print(np.nansum(x))
+    getVals("Thats One Small.wav")
+
+    # sound: pm.Sound = pm.Sound('Thats One Small.wav')
+    # pitch = sound.to_pitch()
+    # formant = sound.to_formant_burg()
+    # intensity = sound.to_intensity()
+    # spectrogram = sound.to_spectrogram()
+    # formants_list = get_formants(pitch, formant, intensity, intensity_filter=50)
+    # diffs = get_formant_differences(formants_list)
     #
-    # draw_spectrogram(spectrogram)
-
-    plt.figure()
-
-    for x in diffs:
-        plt.plot(x)
-    plt.show()
+    # # for x in diffs:
+    # #     print(np.nansum(x))
+    # #
+    # # draw_spectrogram(spectrogram)
+    #
+    # plt.figure(figsize=(12.8, 7.2))
+    # print(len(diffs[0]))
+    # for x in diffs:
+    #     plt.plot(*zip(*x))
+    # plt.show()
 
 
 if __name__ == '__main__':
