@@ -1,5 +1,6 @@
 import parselmouth as pm
 import numpy as np
+from FormantCleaning import *
 
 
 def get_pitch_values(pitch: pm.Pitch, intensity: pm.Intensity, intensity_filter: float = 0):
@@ -62,17 +63,25 @@ def get_formant_differences(formants: list[list[float, ...]]):
 
 def main():
     import matplotlib.pyplot as plt
-    sound: pm.Sound = pm.Sound('from jake/test_speech.wav')
+    sound: pm.Sound = pm.Sound('Thats One Small.wav')
     pitch = sound.to_pitch()
-    formant = sound.to_formant_burg()
+    formant = sound.to_formant_burg(time_step=0.001, window_length=0.032169)
+    formant_ts = []
+    for i in range(len(formant)):
+        formant_ts.append(formant.get_time_at_frame(i))
+
     intensity = sound.to_intensity()
+    spectrogram = sound.to_spectrogram()
     diffs = get_formant_differences(get_formants(pitch, formant, intensity, intensity_filter=50))
     for x in diffs:
         print(np.nansum(x))
 
-    plt.figure()
-    for x in diffs:
-        plt.plot(x)
+    plt.figure(figsize=(12.8, 7.2))
+    # draw_spectrogram(spectrogram)
+    # plt.twinx()
+    for i, x in enumerate(diffs):
+        plt.plot(formant_ts, x, label=f"Formant {i}")
+    plt.legend()
     plt.show()
 
 

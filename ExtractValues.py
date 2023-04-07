@@ -73,9 +73,21 @@ def plotValues(inFile, outFile):
         values = clean_formants(pitch, formants, intensity)
         # draw values
         fig = draw_values(values, spec)
-        fig.savefig(outFile + "formants.png")
+        fig.savefig(outFile + "_formants.png")
         return fig
     else:
         return False
 
+def main():
+    inFile = "Thats.wav"
+    outFile = inFile.replace(".wav", "")
+
+
+
+
+
+    return True
+
+if __name__ == '__main__':
+    main()
 
