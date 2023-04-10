@@ -2,6 +2,7 @@ import parselmouth as pm
 import os.path as path
 import numpy as np
 from FormantCleaning import draw_spectrogram
+from ExtractValues import *
 
 
 def get_pitch_values(pitch: pm.Pitch, intensity: pm.Intensity,
