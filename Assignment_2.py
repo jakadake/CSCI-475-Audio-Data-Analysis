@@ -23,15 +23,22 @@ def main():
     snd = pm.Sound(inFile)
 
     startTime = 3.711298
-    endTime
+    endTime = 3.844613
 
-    sndPart = snd.extract_part(from_time=3.711298, to_time=3.844613)
-    pitch = snd.to_pitch_spinet(time_step=0.005, window_length=0.01)
-    formants = snd.to_formant_burg(time_step=0.001, window_length=pitch.get_time_from_frame_number(1))
+    sndPart = snd.extract_part(from_time=startTime, to_time=endTime)
+    pitch = snd.to_pitch_spinet(time_step=0.01, window_length=0.05)
+    formants = snd.to_formant_burg(time_step=0.01, window_length=pitch.get_time_from_frame_number(1))
     intensity = snd.to_intensity(time_step=0.000951)
+
+    pitchPart = sndPart.to_pitch()
+    formantsPart = sndPart.to_formant_burg()
+    intensityPart = sndPart.to_intensity()
 
     vals = getVals(inFile)
     values = get_formants(pitch, formants, intensity)
+    valuesPart = get_formants(pitchPart, formantsPart, intensityPart)
+
+
 
     diffs = get_formant_differences(values)
 
@@ -39,6 +46,16 @@ def main():
 
     JNDs = [5, 60, 200, 400, 650]
     colors = ['r', '#FFA500', 'y', 'g', 'b']
+
+    for i, fList in enumerate(valuesPart):
+        print(f"Formant {i}: {np.nanmean([v[1] for v in fList])}")
+        netChange = fList[-1][1] - fList[0][1]
+        if netChange > JNDs[i]:
+            print(f"Rising: {netChange}")
+        elif netChange < -JNDs[i]:
+            print(f"Falling: {netChange}")
+        else:
+            print(f"Flat: {netChange}")
 
     for i, fList in reversed(list(enumerate(diffs))):
         plt.subplot(2,3, i+1)
