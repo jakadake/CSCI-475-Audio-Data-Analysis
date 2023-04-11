@@ -8,15 +8,16 @@ from Assignment_2 import *
 def main():
     snd = pm.Sound("Thats One Small.wav")
 
+    intensity = snd.to_intensity(time_step=0, minimum_pitch=75)
+    # intensity = intensity.extract(from_time=0.001, to_time=numPitchFrames*pitchFrameLength)
+    numIntFrames = intensity.get_number_of_frames()
+    # timeStep
+
     pitch = snd.to_pitch_spinet(time_step=0.001, window_length=0.005)
     numPitchFrames = pitch.get_number_of_frames()
     pitchFrameLength = pitch.get_time_from_frame_number(1)
     pitch_ts = pitch.ts()
     # print(pitch.time_step)
-
-    intensity = snd.to_intensity(time_step=0.001, minimum_pitch=10)
-    intensity = intensity.extract(from_time=0, to_time=numPitchFrames*pitchFrameLength)
-    numIntFrames = intensity.get_number_of_frames()
 
     formants = snd.to_formant_burg(time_step=0.001, window_length=pitchFrameLength)
     numFormantFrames = formants.get_number_of_frames()
