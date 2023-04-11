@@ -34,8 +34,8 @@ def main():
         intensityFromTime.append(intensity.get_value(pitch.get_time_from_frame_number(i)))
         pitch_vals.append(pitch.get_value_in_frame(i))
 
-
-        # print(f"Time = {pitch_ts[i-1]}\t intensity ratio [time/pitch] = {intensityFromTime[i-1] / intensityFromPitch[i-1]}")
+        print(f"Time = {pitch_ts[i-1]}\tIntensity From Pitch: {intensityFromPitch[i-1]}\tIntensity from Time: {intensityFromTime[i-1]}")
+        print(f"Time = {pitch_ts[i-1]}\t intensity ratio [time/pitch] = {intensityFromTime[i-1] / intensityFromPitch[i-1]}")
 
 
 
