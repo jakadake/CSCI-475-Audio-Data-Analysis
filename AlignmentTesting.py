@@ -12,9 +12,10 @@ def main():
     numPitchFrames = pitch.get_number_of_frames()
     pitchFrameLength = pitch.get_time_from_frame_number(1)
     pitch_ts = pitch.ts()
-    #print(pitch.time_step)
+    # print(pitch.time_step)
 
-    intensity = snd.to_intensity(time_step=0.001)
+    intensity = snd.to_intensity(time_step=0.001, minimum_pitch=10)
+    intensity = intensity.extract(from_time=0, to_time=numPitchFrames*pitchFrameLength)
     numIntFrames = intensity.get_number_of_frames()
 
     formants = snd.to_formant_burg(time_step=0.001, window_length=pitchFrameLength)
@@ -34,24 +35,24 @@ def main():
         intensityFromTime.append(intensity.get_value(pitch.get_time_from_frame_number(i)))
         pitch_vals.append(pitch.get_value_in_frame(i))
 
-        print(f"Time = {pitch_ts[i-1]}\tIntensity From Pitch: {intensityFromPitch[i-1]}\tIntensity from Time: {intensityFromTime[i-1]}")
-        print(f"Time = {pitch_ts[i-1]}\t intensity ratio [time/pitch] = {intensityFromTime[i-1] / intensityFromPitch[i-1]}")
+        # print(f"Time = {pitch_ts[i-1]}\tIntensity From Pitch: {intensityFromPitch[i-1]}\tIntensity from Time: {intensityFromTime[i-1]}")
+        # print(f"Time = {pitch_ts[i-1]}\t intensity ratio [time/pitch] = {intensityFromTime[i-1] / intensityFromPitch[i-1]}")
 
 
 
-    # print("Number of Intensity vals From Time: ")
-    # print(len(intensityFromTime))
-    # print("Number of Intensity vals From Pitch: ")
-    # print(len(intensityFromPitch))
-    # print("Number of Pitch Frames: ")
-    # print(numPitchFrames)
-    # print("Number of Formant Frames: ")
-    # print(numFormantFrames)
-    # print("Number of Intensity Frames")
-    # print(numIntFrames)
+    print("Number of Intensity vals From Time: ")
+    print(len(intensityFromTime))
+    print("Number of Intensity vals From Pitch: ")
+    print(len(intensityFromPitch))
+    print("Number of Pitch Frames: ")
+    print(numPitchFrames)
+    print("Number of Formant Frames: ")
+    print(numFormantFrames)
+    print("Number of Intensity Frames")
+    print(numIntFrames)
 
     # for i in range(numPitchFrames):
-    #     print(f"Time: {pitch_ts[i]}\tPitch: {formants}")
+    #     print(f"Time: {pitch_ts[i]}\tPitch: {pitch_vals[i]}")
 
     return True
 

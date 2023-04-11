@@ -86,7 +86,7 @@ def getVals(inFile: str):
 
         #extract data objects
         pitch = snd.to_pitch(time_step=0.001)
-        formants = snd.to_formant_burg(time_step=0.001)
+        formants = snd.to_formant_burg(time_step=0.001, window_length=pitch.get_time_from_frame_number(1))
         intensity = snd.to_intensity(time_step=0.001)
 
         #get time sequences and make times superlist
