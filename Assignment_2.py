@@ -46,7 +46,7 @@ from formant_analysis import *
 
 def first_part(filename: str):
     snd = pm.Sound(filename)
-    pitch = snd.to_pitch_spinet(time_step=0.01, window_length=0.05)
+    pitch = snd.to_pitch_ac(time_step=0.01)
     formants = snd.to_formant_burg(time_step=0.01, window_length=pitch.get_time_from_frame_number(1))
     intensity = snd.to_intensity(time_step=0.000951)
 
@@ -65,6 +65,8 @@ def first_part(filename: str):
         plt.subplot(2, 3, f_n + 1)
         plt.ylim((0, max(f_vals) * 1.25))
         plt.title(f'F{f_n}')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
         plt.plot(f_times, f_vals) #, s=7, marker='o')
         plot_diffs_color(fList, diffList, 0, max(f_vals) * 1.25)
     plt.tight_layout()
@@ -75,9 +77,11 @@ def first_part(filename: str):
 
 
 
-# def second_part():
+def second_part(from_time, to_time):
+    
 def main():
     inFile = "One Small Step.wav"
+    # inFile = "D:\My Drive\\2023\Computational Linguistics\moonspeech2 Henry Marty.wav"
     # inFile = "Thats.wav"
     first_part(inFile)
     exit()
