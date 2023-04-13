@@ -156,6 +156,7 @@ def getVals(inFile: str):
         return values
 
 
+
 def main():
     inFile = "Thats One Small.wav"
     outFile = inFile.replace(".wav", "")

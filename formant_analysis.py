@@ -5,6 +5,28 @@ from FormantCleaning import draw_spectrogram
 from ExtractValues import *
 from matplotlib.colors import TwoSlopeNorm
 
+def plot_differences(times, differences, maxF, minF):
+    # differences = np.diff(data)
+    max_abs_diff = np.max(np.abs(differences))
+    normalized_diff = differences / max_abs_diff
+
+    num_vertical_repeats = 100
+    color_matrix = np.tile(normalized_diff, (num_vertical_repeats, 1))
+
+    # plt.figure(figsize=(len(data), 5))
+    plt.imshow(color_matrix, cmap='coolwarm', aspect='auto', extent=(np.min(times), np.max(times), minF, maxF))
+    plt.colorbar(label='Difference Magnitude')
+
+    # Add the amplitude time series line plot on top of the color gradient
+    # plt.plot(times, , color='black', linewidth=2, marker='o', markersize=6)
+
+    # Adjust the x-axis labels
+    plt.xticks(times)
+
+    plt.xlabel('Interval Index')
+    plt.ylabel('Amplitude')
+    plt.title('Color Gradient Representation of Differences with Amplitude Time Series')
+    # plt.show()
 
 def get_pitch_values(pitch: pm.Pitch, intensity: pm.Intensity,
                      intensity_filter: float = 0, nan_as_zero=True) -> tuple[list[float, ...], list[float, ...]]:
