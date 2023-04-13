@@ -8,27 +8,27 @@ from matplotlib.colors import TwoSlopeNorm
 
 def get_pitch_values(pitch: pm.Pitch, intensity: pm.Intensity,
                      intensity_filter: float = 0, nan_as_zero=True) -> tuple[list[float, ...], list[float, ...]]:
-    values = [0.0 for _ in range(len(pitch.ts()))]
-    for i, t in enumerate(pitch.ts()):
+    values = []
+    for t in pitch.ts():
         if intensity.get_value(time=t) > intensity_filter:
             val = pitch.get_value_at_time(t)
             if np.isnan(val) and nan_as_zero:
-                values[i] = 0.0
+                values.append(0.0)
             else:
-                values[i] = val
+                values.append(val)
     return pitch.ts(), values
 
 
 def get_formant_values(formant_number: int, formants: pm.Formant, intensity: pm.Intensity,
                        intensity_filter: float = 0, nan_as_zero=True) -> tuple[list[float, ...], list[float, ...]]:
-    values = [0.0 for _ in range(len(formants.ts()))]
-    for i, t in enumerate(formants.ts()):
+    values = []
+    for t in formants.ts():
         if intensity.get_value(time=t) > intensity_filter:
             val = formants.get_value_at_time(formant_number, t)
             if np.isnan(val) and nan_as_zero:
-                values[i] = 0.0
+                values.append(0.0)
             else:
-                values[i] = val
+                values.append(val)
     return formants.ts(), values
 
 

@@ -53,7 +53,7 @@ def first_part(filename: str):
     values = get_formants(pitch, formants, intensity)
     diffs = get_formant_differences(values)
 
-    fig = plt.figure(figsize=(20, 15))
+    fig = plt.figure(figsize=(32, 18))
     # outer_grid = fig.add_gridspec(2, 1)
 
     JNDs = [5, 60, 200, 400, 650]
@@ -67,28 +67,45 @@ def first_part(filename: str):
         plt.title(f'F{f_n}')
         plt.xlabel('Time (s)')
         plt.ylabel('Frequency (Hz)')
-        plt.plot(f_times, f_vals) #, s=7, marker='o')
+        plt.plot(f_times, f_vals)  # , s=7, marker='o')
         plot_diffs_color(fList, diffList, 0, max(f_vals) * 1.25)
     plt.tight_layout()
     plt.show()
 
 
+def second_part(filename, from_time, to_time):
+    snd = pm.Sound(filename)
+    ipaSnd = snd.extract_part(from_time=from_time, to_time=to_time)
+    ipaPitch = ipaSnd.to_pitch(time_step=.001)
+    ipaFormants = ipaSnd.to_formant_burg(time_step=.001)
+    ipaIntensity = ipaSnd.to_intensity(time_step=.001)
+
+    ipaValues = get_formants(ipaPitch, ipaFormants, ipaIntensity, nan_as_zero=False)
+    JNDs = [5, 60, 200, 400, 650]
+
+    for i, (f_times, f_vals) in enumerate(ipaValues):
+        print(f"Formant {i}: {np.trunc(np.nanmean(f_vals))}")
+        netChange = f_vals[-1] - f_vals[0]
+        if netChange > JNDs[i]:
+            print(f"Rising: {np.trunc(netChange)}")
+        elif netChange < -JNDs[i]:
+            print(f"Falling: {np.trunc(netChange)}")
+        else:
+            print(f"Flat: {np.trunc(netChange)}")
 
 
-
-
-def second_part(from_time, to_time):
-    
 def main():
     inFile = "One Small Step.wav"
     # inFile = "D:\My Drive\\2023\Computational Linguistics\moonspeech2 Henry Marty.wav"
     # inFile = "Thats.wav"
-    first_part(inFile)
+    startTime = 3.711298
+    # startTime = 3.7
+    endTime = 3.8
+    # first_part(inFile)
+    second_part(inFile, startTime, endTime)
     exit()
     # snd = pm.Sound(inFile)
 
-    # startTime = 3.711298
-    # endTime = 3.844613
     # startTime = 0
     # endTime = 2
     #
