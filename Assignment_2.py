@@ -84,14 +84,17 @@ def second_part(filename, from_time, to_time):
     JNDs = [5, 60, 200, 400, 650]
 
     for i, (f_times, f_vals) in enumerate(ipaValues):
-        print(f"Formant {i}: {np.trunc(np.nanmean(f_vals))}")
+        print(f"Formant {i}")
+
+        print(f"\tAverage: {np.trunc(np.nanmean(f_vals))}")
         netChange = f_vals[-1] - f_vals[0]
         if netChange > JNDs[i]:
-            print(f"Rising: {np.trunc(netChange)}")
+            print(f"\tRising: {np.trunc(netChange)}")
         elif netChange < -JNDs[i]:
-            print(f"Falling: {np.trunc(netChange)}")
+            print(f"\tFalling: {np.trunc(netChange)}")
         else:
-            print(f"Flat: {np.trunc(netChange)}")
+            print(f"\tFlat: {np.trunc(netChange)}")
+        print()
 
 
 def main():
