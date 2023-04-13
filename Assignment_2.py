@@ -186,8 +186,6 @@ def main():
     # first_part(inFile)
     second_part(inFile, startTime, endTime)
     exit()
-    
-    exit(0)
 
 if __name__ == '__main__':
     main()
