@@ -110,14 +110,14 @@ def plot_diffs_color(formant_data: tuple[list[float, ...], list[float, ...]], di
 
 def first_part(filename: str):
     snd = pm.Sound(filename)
-    pitch = snd.to_pitch_spinet(time_step=0.01, window_length=0.05)
+    pitch = snd.to_pitch_ac(time_step=0.01)
     formants = snd.to_formant_burg(time_step=0.01, window_length=pitch.get_time_from_frame_number(1))
     intensity = snd.to_intensity(time_step=0.000951)
 
     values = get_formants(pitch, formants, intensity)
     diffs = get_formant_differences(values)
 
-    fig = plt.figure(figsize=(20, 15))
+    fig = plt.figure(figsize=(32, 18))
     # outer_grid = fig.add_gridspec(2, 1)
 
     JNDs = [5, 60, 200, 400, 650]
@@ -129,47 +129,64 @@ def first_part(filename: str):
         plt.subplot(2, 3, f_n + 1)
         plt.ylim((0, max(f_vals) * 1.25))
         plt.title(f'F{f_n}')
-        plt.plot(f_times, f_vals) #, s=7, marker='o')
+        plt.xlabel('Time (s)')
+        plt.ylabel('Frequency (Hz)')
+        plt.plot(f_times, f_vals)  # , s=7, marker='o')
         plot_diffs_color(fList, diffList, 0, max(f_vals) * 1.25)
     plt.tight_layout()
     plt.show()
 
-def second_part(filename: str, sTime: float, eTime: float):
+def second_part(filename: str, from_time: float, to_time: float):
     # set just noticeable difference thresholds
     JNDs = [5, 60, 200, 400, 650]
     # import sound and extract IPA sound part
     snd = pm.Sound(filename)
-    sndPart = snd.extract_part(from_time=sTime, to_time=eTime)
+    ipaSnd = snd.extract_part(from_time=from_time, to_time=to_time)
     # extract relevant values from the sound part
-    pitchPart = sndPart.to_pitch()
-    formantsPart = sndPart.to_formant_burg()
-    intensityPart = sndPart.to_intensity()
+    ipaPitch = ipaSnd.to_pitch(time_step=.001)
+    ipaFormants = ipaSnd.to_formant_burg(time_step=.001)
+    ipaIntensity = ipaSnd.to_intensity(time_step=.001)
     # format values for easy processing
-    valuesPart = get_formants(pitchPart, formantsPart, intensityPart)
+    ipaValues = get_formants(ipaPitch, ipaFormants, ipaIntensity)
     # initialize output string
     out = "Formant averages and trajectories:\n"
     # step through pitch & formants, calculate average and net change
     # prepare analysis output
-    for i, fList in enumerate(valuesPart):
-        out += f"Formant {i}: {np.nanmean([v[1] for v in fList])}\n"
-        netChange = fList[-1][1] - fList[0][1]
-        if netChange > JNDs[i]:
-            out += f"Rising: {netChange}\n"
-        elif netChange < -JNDs[i]:
-            out += f"Falling: {netChange}\n"
-        else:
-            out += f"Flat: {netChange}\n"
+    for i, (f_times, f_vals) in enumerate(ipaValues):
+        out += f"Formant {i}\n"
 
+        out += f"\tAverage: {np.trunc(np.nanmean(f_vals))}\n"
+        netChange = f_vals[-1] - f_vals[0]
+        if netChange > JNDs[i]:
+            out += f"\tRising: {np.trunc(netChange)}\n"
+        elif netChange < -JNDs[i]:
+            out += f"\tFalling: {np.trunc(netChange)}\n"
+        else:
+            out += f"\tFlat: {np.trunc(netChange)}\n\n"
+    
     label = tk.Label(None, text=out, font=('Times', '18'), fg='blue')
     label.pack()
     label.mainloop()
     # report success
     return True
+    
+
+    
+
+
+
 
 def main():
     inFile = "One Small Step.wav"
+    # inFile = "D:\My Drive\\2023\Computational Linguistics\moonspeech2 Henry Marty.wav"
+    # inFile = "Thats.wav"
+    startTime = 3.711298
+    # startTime = 3.7
+    endTime = 3.844613
     # first_part(inFile)
-    second_part(inFile, 3.711298, 3.844613)
+    second_part(inFile, startTime, endTime)
+    exit()
+    
     exit(0)
 
 if __name__ == '__main__':
