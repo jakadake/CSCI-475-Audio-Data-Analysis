@@ -1,68 +1,133 @@
-###################################################################
-##
-##    Assignment 2.py
-##
-##    Desc:
-##
-##    Author: Jacob Haapoja
-##
-##    ©2023
-##
-###################################################################
+##################################################################
+#
+#    Assignment 2.py
+#
+#    Desc:
+#
+#    Author: Jacob Haapoja
+#
+#    ©2023
+#
+##################################################################
 
 import parselmouth as pm
 import numpy as np
 import scipy.io as scipy
+import seaborn as sns
 from FormantCleaning import *
 from MovingAverages import *
 from ExtractValues import *
 from formant_analysis import *
 
-def main():
-    inFile = "One Small Step.wav"
-    snd = pm.Sound(inFile)
 
-    startTime = 3.711298
-    endTime = 3.844613
+# def plot_differences(times, differences, maxF, minF):
+#     # differences = np.diff(data)
+#     max_abs_diff = np.max(np.abs(differences))
+#     normalized_diff = differences / max_abs_diff
+#
+#     num_vertical_repeats = 100
+#     color_matrix = np.tile(normalized_diff, (num_vertical_repeats, 1))
+#
+#     # plt.figure(figsize=(len(data), 5))
+#     plt.imshow(color_matrix, cmap='coolwarm', aspect='auto', extent=(np.min(times), np.max(times), minF, maxF))
+#     plt.colorbar(label='Difference Magnitude')
+#
+#     # Add the amplitude time series line plot on top of the color gradient
+#     # plt.plot(times, , color='black', linewidth=2, marker='o', markersize=6)
+#
+#     # Adjust the x-axis labels
+#     plt.xticks(times)
+#
+#     plt.xlabel('Interval Index')
+#     plt.ylabel('Amplitude')
+#     plt.title('Color Gradient Representation of Differences with Amplitude Time Series')
+#     # plt.show()
 
-    sndPart = snd.extract_part(from_time=startTime, to_time=endTime)
+
+def first_part(filename: str):
+    snd = pm.Sound(filename)
     pitch = snd.to_pitch_spinet(time_step=0.01, window_length=0.05)
     formants = snd.to_formant_burg(time_step=0.01, window_length=pitch.get_time_from_frame_number(1))
     intensity = snd.to_intensity(time_step=0.000951)
 
-    pitchPart = sndPart.to_pitch()
-    formantsPart = sndPart.to_formant_burg()
-    intensityPart = sndPart.to_intensity()
-
-    vals = getVals(inFile)
     values = get_formants(pitch, formants, intensity)
-    valuesPart = get_formants(pitchPart, formantsPart, intensityPart)
-
-
-
     diffs = get_formant_differences(values)
 
-    plt.figure(figsize=(12.8, 7.2))
+    fig = plt.figure(figsize=(20, 15))
+    # outer_grid = fig.add_gridspec(2, 1)
 
     JNDs = [5, 60, 200, 400, 650]
     colors = ['r', '#FFA500', 'y', 'g', 'b']
 
-    for i, fList in enumerate(valuesPart):
-        print(f"Formant {i}: {np.nanmean([v[1] for v in fList])}")
-        netChange = fList[-1][1] - fList[0][1]
-        if netChange > JNDs[i]:
-            print(f"Rising: {netChange}")
-        elif netChange < -JNDs[i]:
-            print(f"Falling: {netChange}")
-        else:
-            print(f"Flat: {netChange}")
+    for f_n, (fList, diffList) in enumerate(zip(values, diffs)):
+        f_times, f_vals = fList
+        d_times, d_vals = diffList
+        plt.subplot(2, 3, f_n + 1)
+        plt.ylim((0, max(f_vals) * 1.25))
+        plt.title(f'F{f_n}')
+        plt.plot(f_times, f_vals) #, s=7, marker='o')
+        plot_diffs_color(fList, diffList, 0, max(f_vals) * 1.25)
+    plt.tight_layout()
+    plt.show()
 
-    for i, fList in reversed(list(enumerate(diffs))):
-        plt.subplot(2,3, i+1)
-        for fTime, fDiff in fList:
-            if abs(fDiff) > JNDs[i]:
-                plt.scatter(fTime, fDiff, color=colors[i])
-    plt.grid(visible=True)
+
+
+
+
+
+# def second_part():
+def main():
+    inFile = "One Small Step.wav"
+    # inFile = "Thats.wav"
+    first_part(inFile)
+    exit()
+    # snd = pm.Sound(inFile)
+
+    # startTime = 3.711298
+    # endTime = 3.844613
+    # startTime = 0
+    # endTime = 2
+    #
+    # sndPart = snd.extract_part(from_time=startTime, to_time=endTime)
+    # pitch = snd.to_pitch_spinet(time_step=0.01, window_length=0.05)
+    # formants = snd.to_formant_burg(time_step=0.01, window_length=pitch.get_time_from_frame_number(1))
+    # intensity = snd.to_intensity(time_step=0.000951)
+    #
+    # pitchPart = sndPart.to_pitch()
+    # formantsPart = sndPart.to_formant_burg()
+    # intensityPart = sndPart.to_intensity()
+    #
+    # vals = getVals(inFile)
+    # values = get_formants(pitch, formants, intensity)
+    # valuesPart = get_formants(pitchPart, formantsPart, intensityPart)
+    #
+    # diffs = get_formant_differences(values)
+    #
+    # fig = plt.figure(figsize=(12.8, 7.2))
+    # outer_grid = fig.add_gridspec(2, 1)
+    #
+    # JNDs = [5, 60, 200, 400, 650]
+    # colors = ['r', '#FFA500', 'y', 'g', 'b']
+    #
+    # for i, fList in enumerate(valuesPart):
+    #     print(f"Formant {i}: {np.nanmean([v[1] for v in fList])}")
+    #     netChange = fList[-1][1] - fList[0][1]
+    #     if netChange > JNDs[i]:
+    #         print(f"Rising: {netChange}")
+    #     elif netChange < -JNDs[i]:
+    #         print(f"Falling: {netChange}")
+    #     else:
+    #         print(f"Flat: {netChange}")
+    #
+    # for i, fList in enumerate(diffs):
+    #     plt.subplot(2, 3, i + 1)
+    #     plot_differences(*zip(*fList), np.max(valuesPart[i], key=lambda x: x[1])[1],
+    #                      np.min(valuesPart[i], key=lambda x: x[1])[1])
+    #     # for fTime, fDiff in fList:
+    #     #     plot_differences(fDiff)
+    #     # if abs(fDiff) > JNDs[i]:
+    #     #     plt.scatter(fTime, fDiff, color=colors[i])
+    # plt.grid(visible=True)
     # plt.show()
 
     # plt.scatter(vals[0][0], vals[2][0], label='Pitch', color='r', linewidths=1)
@@ -75,14 +140,8 @@ def main():
     # # F4 plotted in blue
     # plt.scatter(vals[0][1], vals[2][4], label='F4', color='b', linewidths=1)
 
-    plt.show()
+    # plt.show()
     # plt.figure(figsize=(12.8, 7.2))
-
-
-
-
-
-
 
     # snd = pm.Sound("Thats One Small.wav")
     #

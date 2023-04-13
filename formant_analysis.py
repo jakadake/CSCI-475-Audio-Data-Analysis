@@ -3,36 +3,39 @@ import os.path as path
 import numpy as np
 from FormantCleaning import draw_spectrogram
 from ExtractValues import *
+from matplotlib.colors import TwoSlopeNorm
 
 
 def get_pitch_values(pitch: pm.Pitch, intensity: pm.Intensity,
-                     intensity_filter: float = 0) -> list[tuple[float, float]]:
-    if intensity_filter == 0:
-        return [(t, pitch.get_value_at_time(t)) for t in pitch.ts()]
-    values = []
-    for t in pitch.ts():
+                     intensity_filter: float = 0, nan_as_zero=True) -> tuple[list[float, ...], list[float, ...]]:
+    values = [0.0 for _ in range(len(pitch.ts()))]
+    for i, t in enumerate(pitch.ts()):
         if intensity.get_value(time=t) > intensity_filter:
-            values.append((t, pitch.get_value_at_time(t)))
-        else:
-            values.append((t, 0.0))
-    return values
+            val = pitch.get_value_at_time(t)
+            if np.isnan(val) and nan_as_zero:
+                values[i] = 0.0
+            else:
+                values[i] = val
+    return pitch.ts(), values
 
 
 def get_formant_values(formant_number: int, formants: pm.Formant, intensity: pm.Intensity,
-                       intensity_filter: float = 0) -> list[tuple[float, float]]:
-    if intensity_filter == 0:
-        return [(t, formants.get_value_at_time(formant_number, t)) for t in formants.ts()]
-    values = []
-    for t in formants.ts():
+                       intensity_filter: float = 0, nan_as_zero=True) -> tuple[list[float, ...], list[float, ...]]:
+    values = [0.0 for _ in range(len(formants.ts()))]
+    for i, t in enumerate(formants.ts()):
         if intensity.get_value(time=t) > intensity_filter:
-            values.append((t, formants.get_value_at_time(formant_number, t)))
-        else:
-            values.append((t, 0.0))
-    return values
+            val = formants.get_value_at_time(formant_number, t)
+            if np.isnan(val) and nan_as_zero:
+                values[i] = 0.0
+            else:
+                values[i] = val
+    return formants.ts(), values
+
 
 def get_formants(pitch: pm.Pitch, formants: pm.Formant, intensity: pm.Intensity,
-                 which_formants: tuple[int, ...] = (0, 1, 2, 3, 4), intensity_filter: float = 0) -> list[
-    list[tuple[float, float]]]:
+                 which_formants: tuple[int, ...] = (0, 1, 2, 3, 4), intensity_filter: float = 0, nan_as_zero=True) -> \
+        list[
+            tuple[list[float, ...], list[float, ...]]]:
     """
     :param pitch: parselmouth Pitch
     :param formants: parselmouth Formants
@@ -48,58 +51,77 @@ def get_formants(pitch: pm.Pitch, formants: pm.Formant, intensity: pm.Intensity,
     formant_values = []
     for f in which_formants:
         if f == 0:
-            formant_values.append(get_pitch_values(pitch, intensity, intensity_filter))
+            formant_values.append(get_pitch_values(pitch, intensity, intensity_filter, nan_as_zero=nan_as_zero))
         else:
-            formant_values.append(get_formant_values(f, formants, intensity, intensity_filter))
+            formant_values.append(get_formant_values(f, formants, intensity, intensity_filter, nan_as_zero=nan_as_zero))
 
     return formant_values
 
 
-def get_formant_differences(formants: list[list[tuple[float, float], ...]]) -> list[list[tuple[float, float]]]:
+def get_formant_differences(formants: list[tuple[list[float, ...], list[float, ...]]]) -> list[
+    tuple[list[float, ...], list[float, ...]]]:
     """
     :param formants: 2-d list in the form returned by get_formants
     :return: 2-d list in the form returned by get_formants containing the differences
             note: differences list will have one fewer element than the original list,
                   if list has values at indices i=0..len-1, then return list will contain elements L[i] - L[i+1]
     """
-    # formant value is second in the two-tuple
     diffs = []
     for f_list in formants:
-        f_list_diff = []
-        for k in range(1, len(f_list)):
-            f_list_diff.append(
-                (f_list[k - 1][0] + f_list[k][0] / 2,  # average of time of formant values
-                 f_list[k - 1][1] - f_list[k][1])  # difference between two formant values
-            )
-
-            # return [np.diff(f_list[0]) for f_list in formants]
-        diffs.append(f_list_diff)
+        f_times = []
+        f_diffs = []
+        assert (len(f_list[0]) == len(f_list[1]))  # if assert fails, there is an issue with the way the lists are built
+        for k in range(1, len(f_list[0])):
+            f_times.append((f_list[0][k - 1] + f_list[0][k]) / 2)
+            f_diffs.append(f_list[1][k] - f_list[1][k - 1])
+        diffs.append((f_times, f_diffs))
     return diffs
+
+
+def plot_diffs_color(formant_data: tuple[list[float, ...], list[float, ...]], diff_data, y_min=None, y_max=None):
+    formant_times, formant_values = formant_data
+    diff_times, diffs = diff_data
+    color_matrix = np.array(diffs).reshape(1, len(diffs))
+    plt.imshow(
+        color_matrix,
+        cmap='seismic',
+        aspect='auto',
+        alpha=0.3,
+        norm=TwoSlopeNorm(0),  # sets center of gradient to zero (I think) https://stackoverflow.com/a/20146989
+        extent=(formant_times[0],
+                formant_times[-1],
+                y_min or np.min(formant_values),
+                y_max or np.max(formant_values)),
+        interpolation='none'
+    )
+    # plt.colorbar(label='Difference Magnitude')
+    plt.colorbar()
 
 
 def main():
     import matplotlib.pyplot as plt
 
-    getVals("Thats One Small.wav")
+    # getVals("Thats One Small.wav")
 
-    # sound: pm.Sound = pm.Sound('Thats One Small.wav')
-    # pitch = sound.to_pitch()
-    # formant = sound.to_formant_burg()
-    # intensity = sound.to_intensity()
+    sound: pm.Sound = pm.Sound('Thats one small.wav')
+    pitch = sound.to_pitch()
+    formant = sound.to_formant_burg(time_step=.05)
+    intensity = sound.to_intensity()
     # spectrogram = sound.to_spectrogram()
-    # formants_list = get_formants(pitch, formant, intensity, intensity_filter=50)
-    # diffs = get_formant_differences(formants_list)
+    formants_list = get_formants(pitch, formant, intensity, intensity_filter=50)
+    diffs = get_formant_differences(formants_list)
     #
-    # # for x in diffs:
-    # #     print(np.nansum(x))
-    # #
-    # # draw_spectrogram(spectrogram)
-    #
-    # plt.figure(figsize=(12.8, 7.2))
+    plt.figure(figsize=(12.8, 7.2))
     # print(len(diffs[0]))
-    # for x in diffs:
-    #     plt.plot(*zip(*x))
-    # plt.show()
+    # for x in formants_list:
+    # from test2 import plot_diffs_color
+    plt.scatter(*formants_list[2], s=1)
+    plot_diffs_color(formants_list[2], diffs[2])
+    # plt.scatter(*diffs[2])
+    plt.xlim([0, np.max(formants_list[2][0])])
+    # plt.scatter([0], [0])
+    # print((formants_list[2][0][0], formants_list[2][0][1]))
+    plt.show()
 
 
 if __name__ == '__main__':
