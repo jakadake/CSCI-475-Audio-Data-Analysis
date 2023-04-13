@@ -169,12 +169,6 @@ def second_part(filename: str, from_time: float, to_time: float):
     label.mainloop()
     # report success
     return True
-    
-
-    
-
-
-
 
 def main():
     inFile = "One Small Step.wav"
