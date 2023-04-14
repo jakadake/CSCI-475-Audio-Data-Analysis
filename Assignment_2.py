@@ -252,8 +252,8 @@ def second_part(filename: str, from_time: float, to_time: float):
 
 
 def main():
-    # inFile = "One Small Step.wav"
-    inFile = "D:\\My Drive\\2023\\Computational Linguistics\\moonspeech2 Henry Marty.wav"
+    inFile = "One Small Step.wav"
+    # inFile = "D:\\My Drive\\2023\\Computational Linguistics\\moonspeech2 Henry Marty.wav"
     # inFile = "Thats.wav"
     startTime = 3.711298
     # startTime = 3.7
